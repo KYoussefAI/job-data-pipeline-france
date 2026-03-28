@@ -2,9 +2,12 @@ import os
 import requests
 import json
 from datetime import datetime, timezone
+from dotenv import load_dotenv
 
-APP_ID = "dc0a022f"
-APP_KEY = "72e6f8bd1d21dc74756365b5aeb8ec04"
+load_dotenv()
+
+APP_ID = os.getenv("ADZUNA_APP_ID")
+APP_KEY = os.getenv("ADZUNA_APP_KEY")
 
 BASE_URL = "https://api.adzuna.com/v1/api/jobs/fr/search/{}"
 
@@ -37,7 +40,6 @@ for query in queries:
             continue
 
         data = response.json()
-        print(data.keys())
         results = data.get("results", [])
 
         print(f"Query: {query} | Page: {page} | Jobs fetched: {len(results)}")
