@@ -1,4 +1,4 @@
-# 📊 Job Data Pipeline – France
+# Job Data Pipeline – France
 
 ## 1. Overview
 
