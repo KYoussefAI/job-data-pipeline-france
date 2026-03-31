@@ -11,7 +11,8 @@ The system is designed to collect, store, process, and analyze job market data i
 ## 2. Current Status
 
 * Phase 1: Problem Definition & Data Source Design → Completed
-* Next Phase: Data Processing & Modeling
+* Phase 2: Data Processing & Transformation → Completed
+* Next Phase: Data Storage (PostgreSQL)
 
 ---
 
@@ -23,13 +24,24 @@ The system is designed to collect, store, process, and analyze job market data i
         +-------------+
                ↓
         +----------------------+
-        | Ingestion Script     |
+        | Ingestion Layer      |
         | fetch_jobs.py        |
         +----------------------+
                ↓
         +----------------------+
         | Raw Data Storage     |
         | data/raw/adzuna/     |
+        +----------------------+
+               ↓
+        +----------------------+
+        | Processing Layer     |
+        | reader → extractor → |
+        | transformer → writer |
+        +----------------------+
+               ↓
+        +----------------------+
+        | Processed Data       |
+        | data/processed/      |
         +----------------------+
 ```
 
@@ -40,18 +52,31 @@ The system is designed to collect, store, process, and analyze job market data i
 ```
 job-data-pipeline-france/
 │
-├── data/                          # Raw data (ignored in Git)
-│   └── raw/
+├── data/                          # Raw and processed data (ignored in Git)
+│   ├── raw/
+│   │   └── adzuna/
+│   │       └── YYYY-MM-DD/
+│   │           └── *.json
+│   │
+│   └── processed/
 │       └── adzuna/
 │           └── YYYY-MM-DD/
-│               └── *.json
+│               └── jobs.parquet
 │
 ├── docs/                          # Project documentation
-│   └── problem_and_data_design.md
+│   ├── problem_and_data_design.md
+│   └── data_processing.md
 │
 ├── src/                           # Source code
-│   └── ingestion/
-│       └── fetch_jobs.py
+│   ├── ingestion/
+│   │   └── fetch_jobs.py
+│   │
+│   └── processing/
+│       ├── reader.py
+│       ├── extractor.py
+│       ├── transformer.py
+│       ├── writer.py
+│       └── process_jobs.py
 │
 ├── .gitignore
 ├── README.md
@@ -113,16 +138,36 @@ data/raw/adzuna/YYYY-MM-DD/
 
 ---
 
-## 8. Design Principles
+## 8. Processing Layer
 
-* Raw data is immutable (reproducibility, traceability)
-* Timestamped storage (time-based analysis)
-* Controlled data collection (query filtering)
-* Scalable ingestion (pagination)
+The processing layer transforms raw JSON data into structured datasets.
+
+### Key characteristics:
+
+* Modular pipeline design
+* Safe handling of missing data
+* Schema standardization
+* Type conversion and feature engineering
+* Parquet-based storage
+
+### Output format:
+
+```
+data/processed/adzuna/YYYY-MM-DD/jobs.parquet
+```
 
 ---
 
-## 9. How to Run
+## 9. Design Principles
+
+* Raw data is immutable (reproducibility, traceability)
+* Timestamped storage (time-based analysis)
+* Modular pipeline architecture
+* Separation of ingestion and processing layers
+
+---
+
+## 10. How to Run
 
 1. Create a `.env` file:
 
@@ -134,21 +179,27 @@ ADZUNA_APP_KEY=your_api_key
 2. Install dependencies:
 
 ```
-pip install requests python-dotenv
+pip install requests python-dotenv pandas pyarrow
 ```
 
-3. Run the ingestion script:
+3. Run ingestion:
 
 ```
 python src/ingestion/fetch_jobs.py
 ```
 
+4. Run processing:
+
+```
+python src/processing/process_jobs.py
+```
+
 ---
 
-## 10. Next Steps
+## 11. Next Steps
 
-* Data cleaning and transformation
-* Structured schema design
 * Database integration (PostgreSQL)
+* Schema design and normalization
+* Data loading and querying
 * Analytics and dashboard
 * Pipeline automation
