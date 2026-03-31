@@ -51,7 +51,6 @@ for query in queries:
         time_str = now.strftime("%H-%M-%S")
 
         folder_path = f"data/raw/adzuna/{date_str}"
-
         os.makedirs(folder_path, exist_ok=True)
 
         safe_query = query.replace(" ", "_")
