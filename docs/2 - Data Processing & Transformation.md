@@ -75,6 +75,7 @@ Key extracted fields include:
 
 * job_id
 * title
+* job_role
 * company
 * location
 * country
