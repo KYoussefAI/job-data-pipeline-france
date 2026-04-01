@@ -4,6 +4,7 @@ import pandas as pd
 EXPECTED_COLUMNS = [
     "job_id",
     "title",
+    "job_role",
     "company",
     "location",
     "country",

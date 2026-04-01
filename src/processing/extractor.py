@@ -2,6 +2,7 @@ def extract_job(job):
     return {
         "job_id": job.get("id"),
         "title": job.get("title"),
+        "job_role": job.get("job_role"),
 
         "company": job.get("company", {}).get("display_name"),
 

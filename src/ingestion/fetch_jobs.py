@@ -59,7 +59,7 @@ for query in queries:
         file_path = os.path.join(folder_path, file_name)
 
         output_data = {
-            "query": query,
+            "query": safe_query,
             "page": page,
             "ingestion_timestamp": now.isoformat(),
             "data": data
