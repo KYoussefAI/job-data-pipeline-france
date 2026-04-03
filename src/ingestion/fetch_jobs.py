@@ -4,68 +4,72 @@ import json
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-load_dotenv()
 
-APP_ID = os.getenv("ADZUNA_APP_ID")
-APP_KEY = os.getenv("ADZUNA_APP_KEY")
+def run_ingestion(date):
 
-BASE_URL = "https://api.adzuna.com/v1/api/jobs/fr/search/{}"
+    load_dotenv()
 
-queries = [
-    "data engineer",
-    "data analyst",
-    "data scientist"
-]
-MAX_PAGES = 2
+    APP_ID = os.getenv("ADZUNA_APP_ID")
+    APP_KEY = os.getenv("ADZUNA_APP_KEY")
 
-for query in queries:
-    print(f"\n--- Fetching jobs for: {query} ---")
+    BASE_URL = "https://api.adzuna.com/v1/api/jobs/fr/search/{}"
 
-    for page in range(1, MAX_PAGES + 1):
+    queries = [
+        "data engineer",
+        "data analyst",
+        "data scientist"
+    ]
+    MAX_PAGES = 2
 
-        url = BASE_URL.format(page)
+    for query in queries:
+        print(f"\n--- Fetching jobs for: {query} ---")
 
-        params = {
-            "app_id": APP_ID,
-            "app_key": APP_KEY,
-            "what": query,
-            "where": "france",
-            "results_per_page": 5
-        }
+        for page in range(1, MAX_PAGES + 1):
 
-        response = requests.get(url, params=params)
+            url = BASE_URL.format(page)
 
-        if response.status_code != 200:
-            print(f"Error on page {page}: {response.status_code}")
-            continue
+            params = {
+                "app_id": APP_ID,
+                "app_key": APP_KEY,
+                "what": query,
+                "where": "france",
+                "results_per_page": 5
+            }
 
-        data = response.json()
-        results = data.get("results", [])
+            response = requests.get(url, params=params)
 
-        print(f"Query: {query} | Page: {page} | Jobs fetched: {len(results)}")
+            if response.status_code != 200:
+                print(f"Error on page {page}: {response.status_code}")
+                continue
 
-        # -------------
+            data = response.json()
+            results = data.get("results", [])
 
-        now = datetime.now(timezone.utc)
-        date_str = now.strftime("%Y-%m-%d")
-        time_str = now.strftime("%H-%M-%S")
+            print(f"Query: {query} | Page: {page} | \
+                  Jobs fetched: {len(results)}")
 
-        folder_path = f"data/raw/adzuna/{date_str}"
-        os.makedirs(folder_path, exist_ok=True)
+            # -------------
 
-        safe_query = query.replace(" ", "_")
+            now = datetime.now(timezone.utc)
+            date_str = date
+            time_str = now.strftime("%H-%M-%S")
 
-        file_name = f"{safe_query}_page_{page}_{time_str}.json"
-        file_path = os.path.join(folder_path, file_name)
+            folder_path = f"data/raw/adzuna/{date_str}"
+            os.makedirs(folder_path, exist_ok=True)
 
-        output_data = {
-            "query": safe_query,
-            "page": page,
-            "ingestion_timestamp": now.isoformat(),
-            "data": data
-        }
+            safe_query = query.replace(" ", "_")
 
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, ensure_ascii=False, indent=2)
+            file_name = f"{safe_query}_page_{page}_{time_str}.json"
+            file_path = os.path.join(folder_path, file_name)
 
-        print(f"Saved: {file_path}")
+            output_data = {
+                "query": safe_query,
+                "page": page,
+                "ingestion_timestamp": now.isoformat(),
+                "data": data
+            }
+
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(output_data, f, ensure_ascii=False, indent=2)
+
+            print(f"Saved: {file_path}")
